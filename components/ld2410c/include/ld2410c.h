@@ -1,6 +1,15 @@
 #ifndef LD2410C_H
 #define LD2410C_H
 
+/**
+ * @file ld2410c.h
+ * @brief Public API for the HLK-LD2410C UART presence sensor driver.
+ *
+ * Only TX/RX UART reporting is used. The module OUT pin is intentionally left
+ * unconnected because it cannot provide distance and energy values required by
+ * the data-fusion model.
+ */
+
 #include <stdbool.h>
 #include <stdint.h>
 

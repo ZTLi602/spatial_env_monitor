@@ -1,3 +1,12 @@
+/**
+ * @file app_core.c
+ * @brief Application-level sensor fusion acquisition layer.
+ *
+ * This module owns peripheral initialization and the Phase2 acquisition task.
+ * SHT30 and LD2410C samples are collected into a static ring buffer so later
+ * TFLM inference and GUI code can consume a coherent snapshot without directly
+ * touching sensor drivers.
+ */
 #include "app_core.h"
 
 #include <string.h>
@@ -29,6 +38,11 @@ static portMUX_TYPE s_sample_lock = portMUX_INITIALIZER_UNLOCKED;
 
 /**
  * @brief Store one fused sample in the static ring buffer.
+ *
+ * A short critical section protects the producer task and future consumers from
+ * reading a partially written slot. The buffer intentionally overwrites the
+ * oldest sample because display and near-real-time inference only need the
+ * latest coherent sensor snapshot.
  *
  * @param sample Source sample to copy into the next ring-buffer slot.
  */

@@ -1,3 +1,11 @@
+/**
+ * @file sht30.c
+ * @brief SHT30 temperature/humidity sensor driver using ESP-IDF I2C master.
+ *
+ * The driver performs single-shot high-repeatability measurements and validates
+ * both temperature and humidity words with the SHT30 CRC-8. The I2C bus is kept
+ * at the fixed project pins to avoid ESP32-S3 strapping-pin risks.
+ */
 #include "sht30.h"
 
 #include <string.h>

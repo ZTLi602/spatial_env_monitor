@@ -1,6 +1,11 @@
 #ifndef APP_CORE_H
 #define APP_CORE_H
 
+/**
+ * @file app_core.h
+ * @brief Application core API for initialization and fused sample access.
+ */
+
 #include <stdbool.h>
 #include <stdint.h>
 

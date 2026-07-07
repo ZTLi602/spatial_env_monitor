@@ -1,3 +1,12 @@
+/**
+ * @file app_main.c
+ * @brief Firmware entry point for staged hardware validation and Phase2 sampling.
+ *
+ * Startup first disables the onboard WS2812 on GPIO48, then initializes all
+ * project peripherals, runs a visible self-test, and finally starts the static
+ * acquisition task. The main loop only prints the latest fused sample and does
+ * not directly access sensor buses.
+ */
 #include "driver/gpio.h"
 #include "driver/rmt_tx.h"
 #include "esp_err.h"

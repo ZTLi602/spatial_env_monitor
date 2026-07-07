@@ -1,6 +1,11 @@
 #ifndef ST7789_H
 #define ST7789_H
 
+/**
+ * @file st7789.h
+ * @brief Public API for the ST7789 SPI display driver.
+ */
+
 #include <stdint.h>
 
 #include "esp_err.h"

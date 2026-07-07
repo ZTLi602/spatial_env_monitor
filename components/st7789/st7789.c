@@ -1,3 +1,11 @@
+/**
+ * @file st7789.c
+ * @brief Minimal ST7789 RGB565 SPI display driver for hardware bring-up.
+ *
+ * The SPI device is configured for half-duplex operation and reduced GPIO drive
+ * strength because the target hardware is connected with short Dupont wires.
+ * Pixel and transaction buffers are static to avoid runtime heap allocation.
+ */
 #include "st7789.h"
 
 #include <string.h>

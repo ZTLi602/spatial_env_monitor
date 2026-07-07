@@ -1,3 +1,13 @@
+/**
+ * @file ld2410c.c
+ * @brief LD2410C UART transparent-mode driver for presence sensing.
+ *
+ * This driver only uses the official UART reporting stream. The OUT pin is not
+ * sampled because it exposes only a coarse presence signal, while this project
+ * needs moving/static distance and energy values for later data fusion and
+ * inference. All buffers are statically allocated to comply with the project
+ * memory rules.
+ */
 #include "ld2410c.h"
 
 #include <string.h>
@@ -107,6 +117,11 @@ static esp_err_t uart_read_exact_until(uint8_t *buf, size_t len, TickType_t dead
 
 /**
  * @brief Synchronize to F4 F3 F2 F1 and read one complete reporting frame.
+ *
+ * LD2410C reports a continuous byte stream, so a task may start reading from
+ * the middle of a frame after boot, reset, or UART buffering. The parser first
+ * searches the 4-byte magic header and only then reads the fixed payload/tail.
+ * This avoids treating arbitrary in-stream bytes as a frame header.
  *
  * @param buf Destination buffer for the complete frame.
  * @param len Expected complete frame length.

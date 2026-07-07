@@ -1,3 +1,12 @@
+/**
+ * @file self_test.c
+ * @brief Visible hardware self-test sequence for staged board bring-up.
+ *
+ * The tests are intentionally simple and observable: LCD color fills, backlight
+ * brightness ramp, and serial logs for SHT30/LD2410C. This module is used while
+ * hardware is still connected with Dupont wires, where visual confirmation is
+ * often faster than debugging the final UI.
+ */
 #include "self_test.h"
 
 #include "esp_log.h"

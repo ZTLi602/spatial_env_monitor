@@ -1,6 +1,11 @@
 #ifndef SHT30_H
 #define SHT30_H
 
+/**
+ * @file sht30.h
+ * @brief Public API for the SHT30 temperature/humidity sensor driver.
+ */
+
 #include <stdbool.h>
 #include <stdint.h>
 
