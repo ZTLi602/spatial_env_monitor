@@ -1,0 +1,12 @@
+# ESP-IDF build artifacts
+build/
+sdkconfig.old
+sdkconfig.defaults.old
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
