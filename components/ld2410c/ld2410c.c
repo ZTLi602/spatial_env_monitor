@@ -12,18 +12,18 @@
 
 #include <string.h>
 
-#include "driver/uart.h"
 #include "driver/gpio.h"
+#include "driver/uart.h"
 #include "esp_check.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 static const char *TAG = "ld2410c";
-//  git测试版本
+
 /* ---- Protocol offsets in the Data field of a Reporting Frame ------------- */
 /*
- * LD2410C UART transparent-mode reporting frame layout (little-endian):
+ * LD2410C UART transparent-mode reporting frame layout (little-endian fields):
  *
  *  Byte  0- 3 : Frame header  0xF4 0xF3 0xF2 0xF1
  *  Byte  4- 5 : Data length   (uint16 LE)
@@ -57,27 +57,25 @@ static const char *TAG = "ld2410c";
 #define FRAME_HEAD_MARKER       0xAAU
 #define FRAME_TAIL_MARKER       0x55U
 
-#define READ_TIMEOUT_MS         300U
+#define READ_TIMEOUT_MS         50U
+#define LD2410C_ENERGY_MAX      100U
 
 static bool s_initialized = false;
 
 static uint8_t s_rx_buf[LD2410C_FRAME_MAX_LEN];
 
 /**
- * @brief Check the four-byte header or tail magic at a given buffer offset.
+ * @brief Compare a byte sequence at a given frame-buffer offset.
  *
  * @param buf Buffer containing frame data.
  * @param offset Byte offset to check.
- * @param magic Expected 32-bit magic, interpreted from little-endian bytes.
- * @return true if the bytes match the expected magic value.
+ * @param expected Expected byte sequence.
+ * @param len Number of bytes to compare.
+ * @return true if the bytes match the expected sequence.
  */
-static bool check_magic(const uint8_t *buf, size_t offset, uint32_t magic)
+static bool bytes_equal_at(const uint8_t *buf, size_t offset, const uint8_t *expected, size_t len)
 {
-    uint32_t word = (uint32_t)buf[offset]
-                  | ((uint32_t)buf[offset + 1] << 8U)
-                  | ((uint32_t)buf[offset + 2] << 16U)
-                  | ((uint32_t)buf[offset + 3] << 24U);
-    return word == magic;
+    return memcmp(&buf[offset], expected, len) == 0;
 }
 
 /**
@@ -131,6 +129,7 @@ static esp_err_t uart_read_frame(uint8_t *buf, size_t len)
 {
     ESP_RETURN_ON_FALSE(buf != NULL, ESP_ERR_INVALID_ARG, TAG, "buf is NULL");
     ESP_RETURN_ON_FALSE(len >= FRAME_HDR_LEN, ESP_ERR_INVALID_ARG, TAG, "frame buffer too small");
+    ESP_RETURN_ON_FALSE(len <= LD2410C_FRAME_MAX_LEN, ESP_ERR_INVALID_ARG, TAG, "frame buffer too large");
 
     static const uint8_t header[FRAME_HDR_LEN] = {0xF4U, 0xF3U, 0xF2U, 0xF1U};
     TickType_t deadline = xTaskGetTickCount() + pdMS_TO_TICKS(READ_TIMEOUT_MS);
@@ -213,13 +212,15 @@ esp_err_t ld2410c_read(ld2410c_data_t *out_data)
         return ret;
     }
 
-    if (!check_magic(s_rx_buf, 0, 0xF1F2F3F4UL)) {
+    static const uint8_t frame_header[FRAME_HDR_LEN] = {0xF4U, 0xF3U, 0xF2U, 0xF1U};
+    if (!bytes_equal_at(s_rx_buf, 0, frame_header, sizeof(frame_header))) {
         ESP_LOGW(TAG, "bad frame header: %02X %02X %02X %02X",
                  s_rx_buf[0], s_rx_buf[1], s_rx_buf[2], s_rx_buf[3]);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
-    if (!check_magic(s_rx_buf, FRAME_TAIL_OFFSET, 0xF5F6F7F8UL)) {
+    static const uint8_t frame_tail[FRAME_HDR_LEN] = {0xF8U, 0xF7U, 0xF6U, 0xF5U};
+    if (!bytes_equal_at(s_rx_buf, FRAME_TAIL_OFFSET, frame_tail, sizeof(frame_tail))) {
         ESP_LOGW(TAG, "bad frame tail: %02X %02X %02X %02X",
                  s_rx_buf[FRAME_TAIL_OFFSET], s_rx_buf[FRAME_TAIL_OFFSET + 1],
                  s_rx_buf[FRAME_TAIL_OFFSET + 2], s_rx_buf[FRAME_TAIL_OFFSET + 3]);
@@ -252,14 +253,21 @@ esp_err_t ld2410c_read(ld2410c_data_t *out_data)
         return ESP_ERR_INVALID_RESPONSE;
     }
 
+    uint8_t moving_energy = s_rx_buf[FRAME_MOVE_ENRG_OFFSET];
+    uint8_t static_energy = s_rx_buf[FRAME_STAT_ENRG_OFFSET];
+    if (moving_energy > LD2410C_ENERGY_MAX || static_energy > LD2410C_ENERGY_MAX) {
+        ESP_LOGW(TAG, "invalid energy values: moving=%u static=%u", moving_energy, static_energy);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
     out_data->target_state        = (ld2410c_target_state_t)state;
     out_data->has_target          = (state != (uint8_t)LD2410C_TARGET_NONE);
     out_data->moving_distance_cm  = (uint16_t)s_rx_buf[FRAME_MOVE_DIST_OFFSET]
                                   | ((uint16_t)s_rx_buf[FRAME_MOVE_DIST_OFFSET + 1] << 8U);
-    out_data->moving_energy       = s_rx_buf[FRAME_MOVE_ENRG_OFFSET];
+    out_data->moving_energy       = moving_energy;
     out_data->static_distance_cm  = (uint16_t)s_rx_buf[FRAME_STAT_DIST_OFFSET]
                                   | ((uint16_t)s_rx_buf[FRAME_STAT_DIST_OFFSET + 1] << 8U);
-    out_data->static_energy       = s_rx_buf[FRAME_STAT_ENRG_OFFSET];
+    out_data->static_energy       = static_energy;
 
     return ESP_OK;
 }

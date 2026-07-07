@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "driver/uart.h"
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -26,14 +27,9 @@ extern "C" {
 /* ---- UART configuration -------------------------------------------------- */
 #define LD2410C_UART_PORT    UART_NUM_1
 #define LD2410C_UART_BAUD    256000
-#define LD2410C_UART_BUF_SZ  256U   /**< RX ring-buffer size (static) */
+#define LD2410C_UART_BUF_SZ  256U   /**< UART driver RX buffer base size */
 
 /* ---- Protocol constants -------------------------------------------------- */
-/** Frame header: 0xF4 0xF3 0xF2 0xF1 */
-#define LD2410C_FRAME_HEADER  0xF4F3F2F1UL
-/** Frame tail:   0xF8 0xF7 0xF6 0xF5 */
-#define LD2410C_FRAME_TAIL    0xF8F7F6F5UL
-
 /** Maximum raw frame length the parser will accept */
 #define LD2410C_FRAME_MAX_LEN 64U
 
@@ -77,7 +73,7 @@ esp_err_t ld2410c_init(void);
 /**
  * @brief Read and parse one reporting frame from the LD2410C.
  *
- * Blocks until a valid frame is received or a 200 ms timeout elapses.
+ * Blocks until a valid frame is received or a short timeout elapses.
  * Frame header and tail are verified; malformed frames are discarded.
  *
  * @param[out] out_data  Destination for the parsed data.  Must not be NULL.
