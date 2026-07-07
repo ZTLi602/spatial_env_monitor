@@ -10,3 +10,6 @@ sdkconfig.defaults.old
 # OS
 .DS_Store
 Thumbs.db
+
+# Documents
+*.pdf
