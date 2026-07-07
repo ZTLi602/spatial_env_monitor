@@ -10,7 +10,7 @@
 #include "freertos/task.h"
 
 static const char *TAG = "ld2410c";
-
+//  git测试版本
 /* ---- Protocol offsets in the Data field of a Reporting Frame ------------- */
 /*
  * LD2410C UART transparent-mode reporting frame layout (little-endian):
