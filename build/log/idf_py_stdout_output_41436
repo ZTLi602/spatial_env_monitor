@@ -1,0 +1,373 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xa (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce3810,len:0x1870
+load:0x403c9700,len:0x4
+load:0x403c9704,len:0xcec
+load:0x403cc700,len:0x2ec8
+entry 0x403c9918
+[0;32mI (27) boot: ESP-IDF v5.2.7 2nd stage bootloader[0m
+[0;32mI (27) boot: compile time Jul  6 2026 10:05:11[0m
+[0;32mI (27) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v0.2[0m
+[0;32mI (34) boot: efuse block revision: v1.4[0m
+[0;32mI (38) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (43) boot.esp32s3: SPI Mode       : DIO[0m
+[0;32mI (48) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (53) boot: Enabling RNG early entropy source...[0m
+[0;32mI (58) boot: Partition Table:[0m
+[0;32mI (62) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (69) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (84) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (91) boot: End of partition table[0m
+[0;32mI (95) esp_image: segment 0: paddr=00010020 vaddr=3c020020 size=0fc94h ( 64660) map[0m
+[0;32mI (115) esp_image: segment 1: paddr=0001fcbc vaddr=3fc96700 size=0035ch (   860) load[0m
+[0;32mI (116) esp_image: segment 2: paddr=00020020 vaddr=42000020 size=1fa5ch (129628) map[0m
+[0;32mI (144) esp_image: segment 3: paddr=0003fa84 vaddr=3fc96a5c size=02bb4h ( 11188) load[0m
+[0;32mI (147) esp_image: segment 4: paddr=00042640 vaddr=40374000 size=12654h ( 75348) load[0m
+[0;32mI (173) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (173) boot: Disabling RNG early entropy source...[0m
+[0;32mI (185) cpu_start: Multicore app[0m
+[0;32mI (194) cpu_start: Pro cpu start user code[0m
+[0;32mI (194) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (195) cpu_start: Application information:[0m
+[0;32mI (197) cpu_start: Project name:     spatial_env_monitor[0m
+[0;32mI (203) cpu_start: App version:      1[0m
+[0;32mI (208) cpu_start: Compile time:     Jul  6 2026 16:32:23[0m
+[0;32mI (214) cpu_start: ELF file SHA256:  c38a7e77e...[0m
+[0;32mI (219) cpu_start: ESP-IDF:          v5.2.7[0m
+[0;32mI (224) cpu_start: Min chip rev:     v0.0[0m
+[0;32mI (229) cpu_start: Max chip rev:     v0.99 [0m
+[0;32mI (234) cpu_start: Chip rev:         v0.2[0m
+[0;32mI (239) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (246) heap_init: At 3FC9B880 len 0004DE90 (311 KiB): RAM[0m
+[0;32mI (252) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (258) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (264) heap_init: At 600FE010 len 00001FD8 (7 KiB): RTCRAM[0m
+[0;32mI (271) spi_flash: detected chip: boya[0m
+[0;32mI (275) spi_flash: flash io: dio[0m
+[0;33mW (279) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`[0m
+[0;32mI (289) sleep: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (296) sleep: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (304) main_task: Started on CPU0[0m
+[0;32mI (314) main_task: Calling app_main()[0m
+[0;32mI (314) gpio: GPIO[48]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 1| Pulldown: 0| Intr:0 [0m
+[0;31mE (324) rmt: rmt_tx_wait_all_done(554): flush timeout[0m
+[0;32mI (324) gpio: GPIO[48]| InputEn: 0| OutputEn: 0| OpenDrain: 0| Pullup: 1| Pulldown: 0| Intr:0 [0m
+[0;32mI (334) main: === Hardware self-test + Phase2 acquisition ===[0m
+[0;32mI (344) sht30: initialized (SDA=GPIO4, SCL=GPIO1, 400000 Hz)[0m
+[0;32mI (1354) ld2410c: initialized (TX=GPIO17, RX=GPIO18, 256000 baud)[0m
+[0;32mI (1354) gpio: GPIO[5]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (1354) gpio: GPIO[6]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (1674) st7789: initialized (240x320, SPI 20 MHz, HALFDUPLEX)[0m
+[0;32mI (1674) app_core: app_core_init complete (see warnings above for unconnected peripherals)[0m
+[0;32mI (1674) self_test: ========== HARDWARE SELF TEST START ==========[0m
+[0;32mI (1684) self_test: Expected LCD: RED -> GREEN -> BLUE -> WHITE -> BLACK, then backlight breathing[0m
+[0;32mI (1694) self_test: Expected serial: SHT30 temperature/humidity and LD2410C target frames[0m
+[0;32mI (1704) self_test: LCD color test: RED[0m
+[0;32mI (2474) self_test: LCD color test: GREEN[0m
+[0;32mI (3244) self_test: LCD color test: BLUE[0m
+[0;32mI (4014) self_test: LCD color test: WHITE[0m
+[0;32mI (4784) self_test: LCD color test: BLACK[0m
+[0;32mI (5554) self_test: Backlight test: dim -> bright -> dim[0m
+[0;32mI (6274) self_test: Sensor test: 5 rounds[0m
+[0;32mI (6294) self_test: Round 1 SHT30 OK: T=26.67 C, RH=61.20 %[0m
+[0;33mW (6594) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (6594) self_test: Round 1 LD2410C FAIL: ESP_ERR_TIMEOUT[0m
+[0;32mI (7114) self_test: Round 2 SHT30 OK: T=26.71 C, RH=61.24 %[0m
+[0;33mW (7414) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (7414) self_test: Round 2 LD2410C FAIL: ESP_ERR_TIMEOUT[0m
+[0;32mI (7934) self_test: Round 3 SHT30 OK: T=26.68 C, RH=61.23 %[0m
+[0;33mW (8234) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (8234) self_test: Round 3 LD2410C FAIL: ESP_ERR_TIMEOUT[0m
+[0;32mI (8754) self_test: Round 4 SHT30 OK: T=26.70 C, RH=61.21 %[0m
+[0;33mW (9054) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (9054) self_test: Round 4 LD2410C FAIL: ESP_ERR_TIMEOUT[0m
+[0;32mI (9574) self_test: Round 5 SHT30 OK: T=26.68 C, RH=61.21 %[0m
+[0;33mW (9874) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (9874) self_test: Round 5 LD2410C FAIL: ESP_ERR_TIMEOUT[0m
+[0;33mW (10444) self_test: ========== HARDWARE SELF TEST DONE WITH WARNINGS: ESP_ERR_TIMEOUT ==========[0m
+[0;33mW (10444) main: self_test_run completed with warning: ESP_ERR_TIMEOUT[0m
+[0;32mI (10444) app_core: acquisition task started (100 ms period, 32-sample ring buffer)[0m
+[0;31mE (10464) sht30: sht30_read(180): read bytes failed[0m
+[0;33mW (10764) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (11084) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (11404) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (11454) main: #3 SHT30: T=26.68 C  RH=61.17 %[0m
+[0;33mW (11454) main: #3 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (11724) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (12044) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (12364) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (12454) main: #6 SHT30: T=26.68 C  RH=61.15 %[0m
+[0;33mW (12454) main: #6 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (12684) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (13004) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (13324) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (13454) main: #9 SHT30: T=26.68 C  RH=61.15 %[0m
+[0;33mW (13454) main: #9 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (13644) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (13964) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (14284) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (14454) main: #12 SHT30: T=26.70 C  RH=61.16 %[0m
+[0;33mW (14454) main: #12 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (14604) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (14924) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (15244) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (15454) main: #15 SHT30: T=26.67 C  RH=61.12 %[0m
+[0;33mW (15454) main: #15 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (15564) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (15884) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (16204) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (16454) main: #18 SHT30: T=26.68 C  RH=61.23 %[0m
+[0;33mW (16454) main: #18 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (16524) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (16844) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (17164) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (17454) main: #21 SHT30: T=26.65 C  RH=61.28 %[0m
+[0;33mW (17454) main: #21 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (17484) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (17804) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (18124) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (18444) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (18454) main: #25 SHT30: T=26.67 C  RH=61.27 %[0m
+[0;33mW (18454) main: #25 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (18764) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (19084) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (19404) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (19454) main: #28 SHT30: T=26.65 C  RH=61.31 %[0m
+[0;33mW (19454) main: #28 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (19724) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (20044) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (20364) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (20454) main: #31 SHT30: T=26.64 C  RH=61.34 %[0m
+[0;33mW (20454) main: #31 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (20684) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (21004) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (21324) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (21454) main: #34 SHT30: T=26.65 C  RH=61.30 %[0m
+[0;33mW (21454) main: #34 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (21644) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (21964) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (22284) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (22454) main: #37 SHT30: T=26.65 C  RH=61.33 %[0m
+[0;33mW (22454) main: #37 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (22604) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (22924) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (23244) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (23454) main: #40 SHT30: T=26.64 C  RH=61.26 %[0m
+[0;33mW (23454) main: #40 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (23564) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (23884) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (24204) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (24454) main: #43 SHT30: T=26.65 C  RH=61.23 %[0m
+[0;33mW (24454) main: #43 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (24524) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (24844) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (25164) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (25454) main: #46 SHT30: T=26.67 C  RH=61.23 %[0m
+[0;33mW (25454) main: #46 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (25484) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (25804) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (26124) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (26444) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (26454) main: #50 SHT30: T=26.64 C  RH=61.22 %[0m
+[0;33mW (26454) main: #50 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (26764) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (27084) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (27404) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (27454) main: #53 SHT30: T=26.62 C  RH=61.23 %[0m
+[0;33mW (27454) main: #53 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (27724) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (28044) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (28364) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (28454) main: #56 SHT30: T=26.65 C  RH=61.17 %[0m
+[0;33mW (28454) main: #56 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (28684) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (29004) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (29324) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (29454) main: #59 SHT30: T=26.62 C  RH=61.22 %[0m
+[0;33mW (29454) main: #59 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (29644) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (29964) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (30284) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (30454) main: #62 SHT30: T=26.67 C  RH=61.30 %[0m
+[0;33mW (30454) main: #62 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (30604) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (30924) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (31244) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (31454) main: #65 SHT30: T=26.65 C  RH=61.38 %[0m
+[0;33mW (31454) main: #65 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (31564) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (31884) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (32204) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (32454) main: #68 SHT30: T=26.67 C  RH=61.42 %[0m
+[0;33mW (32454) main: #68 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (32524) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (32844) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (33164) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (33454) main: #71 SHT30: T=26.67 C  RH=61.51 %[0m
+[0;33mW (33454) main: #71 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (33484) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (33804) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (34124) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (34444) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (34454) main: #75 SHT30: T=26.67 C  RH=61.54 %[0m
+[0;33mW (34454) main: #75 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (34764) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (35084) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (35404) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (35454) main: #78 SHT30: T=26.65 C  RH=61.43 %[0m
+[0;33mW (35454) main: #78 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (35724) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (36044) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (36364) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (36454) main: #81 SHT30: T=26.67 C  RH=61.30 %[0m
+[0;33mW (36454) main: #81 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (36684) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (37004) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (37324) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (37454) main: #84 SHT30: T=26.65 C  RH=61.23 %[0m
+[0;33mW (37454) main: #84 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (37644) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (37964) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (38284) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (38454) main: #87 SHT30: T=26.65 C  RH=61.08 %[0m
+[0;33mW (38454) main: #87 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (38604) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (38924) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (39244) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (39454) main: #90 SHT30: T=26.67 C  RH=60.96 %[0m
+[0;33mW (39454) main: #90 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (39564) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (39884) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (40204) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (40454) main: #93 SHT30: T=26.65 C  RH=60.87 %[0m
+[0;33mW (40454) main: #93 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (40524) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (40844) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (41164) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (41454) main: #96 SHT30: T=26.67 C  RH=60.87 %[0m
+[0;33mW (41454) main: #96 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (41484) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (41804) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (42124) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (42444) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (42454) main: #100 SHT30: T=26.65 C  RH=61.00 %[0m
+[0;33mW (42454) main: #100 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (42764) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (43084) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (43404) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (43454) main: #103 SHT30: T=26.62 C  RH=60.98 %[0m
+[0;33mW (43454) main: #103 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (43724) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (44044) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (44364) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (44454) main: #106 SHT30: T=26.64 C  RH=61.01 %[0m
+[0;33mW (44454) main: #106 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (44684) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (45004) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (45324) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (45454) main: #109 SHT30: T=26.64 C  RH=60.93 %[0m
+[0;33mW (45454) main: #109 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (45644) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (45964) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (46284) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (46454) main: #112 SHT30: T=26.65 C  RH=60.90 %[0m
+[0;33mW (46454) main: #112 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (46604) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (46924) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (47244) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (47454) main: #115 SHT30: T=26.62 C  RH=60.84 %[0m
+[0;33mW (47454) main: #115 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (47564) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (47884) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (48204) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (48454) main: #118 SHT30: T=26.64 C  RH=60.82 %[0m
+[0;33mW (48454) main: #118 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (48524) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (48844) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (49164) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (49454) main: #121 SHT30: T=26.59 C  RH=60.76 %[0m
+[0;33mW (49454) main: #121 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (49484) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (49804) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (50124) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (50444) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (50454) main: #125 SHT30: T=26.61 C  RH=60.70 %[0m
+[0;33mW (50454) main: #125 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (50764) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (51084) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (51404) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (51454) main: #128 SHT30: T=26.61 C  RH=60.78 %[0m
+[0;33mW (51454) main: #128 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (51724) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (52044) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (52364) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (52454) main: #131 SHT30: T=26.58 C  RH=60.85 %[0m
+[0;33mW (52454) main: #131 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (52684) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (53004) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (53324) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (53454) main: #134 SHT30: T=26.61 C  RH=61.09 %[0m
+[0;33mW (53454) main: #134 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (53644) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (53964) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (54284) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (54454) main: #137 SHT30: T=26.59 C  RH=61.43 %[0m
+[0;33mW (54454) main: #137 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (54604) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (54924) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (55244) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (55454) main: #140 SHT30: T=26.61 C  RH=61.76 %[0m
+[0;33mW (55454) main: #140 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (55564) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (55884) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (56204) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (56454) main: #143 SHT30: T=26.61 C  RH=62.04 %[0m
+[0;33mW (56454) main: #143 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (56524) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (56844) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (57164) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (57454) main: #146 SHT30: T=26.61 C  RH=62.45 %[0m
+[0;33mW (57454) main: #146 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (57484) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (57804) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (58124) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (58444) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (58454) main: #150 SHT30: T=26.59 C  RH=62.70 %[0m
+[0;33mW (58454) main: #150 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (58764) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (59084) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (59404) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (59454) main: #153 SHT30: T=26.59 C  RH=62.81 %[0m
+[0;33mW (59454) main: #153 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (59724) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (60044) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (60364) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (60454) main: #156 SHT30: T=26.61 C  RH=62.84 %[0m
+[0;33mW (60454) main: #156 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (60684) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (61004) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (61324) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (61454) main: #159 SHT30: T=26.61 C  RH=62.82 %[0m
+[0;33mW (61454) main: #159 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (61644) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (61964) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (62284) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (62454) main: #162 SHT30: T=26.58 C  RH=62.73 %[0m
+[0;33mW (62454) main: #162 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (62604) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (62924) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (63244) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (63454) main: #165 SHT30: T=26.59 C  RH=62.48 %[0m
+[0;33mW (63454) main: #165 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (63564) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (63884) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (64204) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;32mI (64454) main: #168 SHT30: T=26.58 C  RH=62.17 %[0m
+[0;33mW (64454) main: #168 LD2410C read failed: ESP_ERR_TIMEOUT[0m
+[0;33mW (64524) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m
+[0;33mW (64844) ld2410c: uart_read_frame: ESP_ERR_TIMEOUT[0m

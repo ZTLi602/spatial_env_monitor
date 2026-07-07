@@ -1,0 +1,66 @@
+# ESP32-S3 空间感知型环境监测终端 - AI 辅助开发规范 (v2.0)
+
+## 1. 项目概述
+本项目是一个基于 ESP32-S3 的“空间感知型环境监测终端”，融合 SHT30 温湿度传感、ST7789 GUI 显示、TFLM 边缘推理与 LD2410C 24GHz FMCW 毫米波雷达。目标是在零基础、纯杜邦线连接条件下，实现环境参数采集、人体存在/运动状态感知、雷达点云可视化及多模态联合决策。所有代码必须由 Cursor 生成，开发者仅负责接线与验证。
+
+## 2. 硬件约束（不可更改）
+- MCU: ESP32-S3-WROOM-1-N16R8 (16MB Flash + 8MB PSRAM)
+- 显示屏: 2.0寸 ST7789V SPI 模块 (240×320, 8Pin, 3.3V背光兼容)
+- 温湿度: SHT30 I2C 模块 (带排针成品模块)
+- 雷达: HLK-LD2410C 24GHz FMCW UART 模块 (非蓝牙版)
+- 连接方式: 仅限杜邦线（**强制要求：SPI/I2C 线长 ≤ 10cm，必须确保 GND 共地可靠**），禁止焊接/PCB
+- 供电: USB-C 5V/2A，禁止外部电源并联
+
+## 3. 引脚分配表（已排除所有 Strapping 引脚风险）
+> ⚠️ 严禁使用 GPIO0, GPIO3, GPIO45, GPIO46 等 Strapping 引脚，防止启动/烧录失败。
+
+| 功能       | ESP32-S3 GPIO | 模块引脚 | 备注                  |
+|------------|---------------|----------|-----------------------|
+| LCD_SCK    | GPIO12        | SCL      | SPI 时钟              |
+| LCD_MOSI   | GPIO11        | SDA      | SPI 数据              |
+| LCD_DC     | **GPIO5**     | DC       | 命令/数据选择 (安全GPIO)|
+| LCD_RST    | **GPIO6**     | RES      | 复位 (安全GPIO)       |
+| LCD_CS     | **GPIO38**    | CS       | 片选 (GPIO48 已被板载 WS2812 RGB LED 占用，改用 GPIO38) |
+| LCD_BLK    | GPIO2         | BLK      | PWM 背光 (3.3V)       |
+| SHT30_SCL  | GPIO1         | SCL      | I2C 时钟 (带上拉)     |
+| SHT30_SDA  | GPIO4         | SDA      | I2C 数据 (带上拉)     |
+| RADAR_TX   | GPIO18        | RX       | 雷达→ESP32 串口接收   |
+| RADAR_RX   | GPIO17        | TX       | ESP32→雷达 串口发送   |
+
+## 4. 软件架构约束
+- 框架: ESP-IDF v5.2+ (禁止 Arduino/PlatformIO)
+- GUI: LVGL v8.3.x (禁用 v9)
+- ML: TensorFlow Lite Micro (TFLM)
+  - **模型输入维度 (6维)**: [温度, 湿度, 运动目标距离, 静止目标距离, 运动目标能量, 静止目标能量]
+  - *注：LD2410C 不直接输出速度，故移除速度维度，采用雷达原生物理量。*
+- 任务模型: FreeRTOS 4任务固定优先级
+  - Task1 (高): SHT30 + LD2410C 数据采集 (周期 100ms)
+  - Task2 (中高): TFLM 推理 + 决策输出 (周期 200ms)
+  - Task3 (中): LVGL UI 渲染 (含雷达能量热力图页)
+  - Task4 (低): 日志打印 + 看门狗喂狗
+- 通信协议: LD2410C 使用官方 UART 透传协议 (帧头 0xF4F3F2F1, 帧尾 0xF8F7F6F5)
+
+## 5. AI 代码生成规则
+- 所有驱动必须封装为独立 .c/.h 文件，提供 init()/read()/deinit() 接口
+- LD2410C 解析函数必须返回结构体：`{has_target, target_state, moving_distance_cm, moving_energy, static_distance_cm, static_energy}`
+- GUI 雷达页面必须包含：实时距离条形图 + 8级能量热力图（颜色映射可配置）
+- TFLM 模型输入预处理必须归一化：温度[-40,80]→[0,1]，湿度[0,100]→[0,1]，距离[0,600]→[0,1]，能量[0,100]→[0,1]
+- **内存管理红线**：
+  - 全局禁止使用 `malloc`/`free`/`heap_caps_malloc`，所有业务缓冲区静态分配。
+  - **LVGL 专属配置**：必须在 `lv_conf.h` 中设置 `LV_MEM_CUSTOM 0` 并合理设定 `LV_MEM_SIZE` (如 32K/64K) 使用内部静态内存池；Display Draw Buffer 必须使用 `static` 数组全局分配。
+- **SPI 驱动配置**：针对杜邦线物理限制，初始化 SPI 总线时必须配置 `SPI_DEVICE_HALFDUPLEX`，并适当降低 GPIO 驱动能力（`gpio_set_drive_capability`）以减少信号反射。
+- 每个函数必须有 Doxygen 注释 + 错误码返回值
+
+## 6. 开发阶段指引
+- Phase1: 硬件验证 → 分别测试 SHT30/LCD/LD2410C 单独工作（重点验证 SPI 在杜邦线下的稳定性）
+- Phase2: 数据融合 → 实现 Task1 双传感器同步采集 + 环形缓冲
+- Phase3: GUI集成 → 添加雷达专属页面，验证刷新率（**杜邦线环境下目标 15-20FPS，若花屏则降频至 10-15MHz 并牺牲帧率**）
+- Phase4: TFLM部署 → 训练6维输入模型，量化为 INT8，部署验证
+- Phase5: 系统联调 → 全任务运行，功耗/内存/稳定性压力测试
+
+## 7. 安全红线
+- 禁止修改引脚分配表（特别是严禁使用 Strapping 引脚）
+- 禁止在 ISR 中调用 LVGL/TFLM 函数
+- 禁止跳过 LD2410C 帧校验直接解析数据
+- 禁止使用未经验证的第三方 LD2410C 库
+- 禁止在 LVGL 和业务逻辑中使用动态内存分配
