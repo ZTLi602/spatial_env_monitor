@@ -1,12 +1,10 @@
 /**
  * @file ld2410c.c
- * @brief LD2410C UART transparent-mode driver for presence sensing.
+ * @brief LD2410C 毫米波雷达 UART 透传上报驱动。
  *
- * This driver only uses the official UART reporting stream. The OUT pin is not
- * sampled because it exposes only a coarse presence signal, while this project
- * needs moving/static distance and energy values for later data fusion and
- * inference. All buffers are statically allocated to comply with the project
- * memory rules.
+ * 学习主线：UART 是连续字节流，本身没有消息边界，因此先搜索固定帧头，
+ * 再读取剩余帧体，并依次校验帧尾、长度、类型和字段范围。所有缓冲区
+ * 均为静态分配，后续数据融合需要的距离和能量均从 UART 上报帧提取。
  */
 #include "ld2410c.h"
 
@@ -39,6 +37,8 @@ static const char *TAG = "ld2410c";
  *  Byte 18    : Check value    (unused by transparency mode, 0x00)
  *  Byte 19-22 : Frame tail     0xF8 0xF7 0xF6 0xF5
  */
+/* 完整上报帧固定为 23 字节。下面这些宏是各字段在字节数组中的下标，
+ * 使用命名偏移而不是直接写数字，可以让解析代码和协议表一一对应。 */
 #define FRAME_HDR_LEN          4U
 #define FRAME_DATALEN_OFFSET   4U
 #define FRAME_TYPE_OFFSET      6U
@@ -59,8 +59,12 @@ static const char *TAG = "ld2410c";
 
 #define READ_TIMEOUT_MS         50U
 #define LD2410C_ENERGY_MAX      100U
+/* 第 1 次以及此后每 10 次同步失败输出诊断，避免断线时刷屏。 */
+#define DIAGNOSTIC_LOG_INTERVAL_UNUSED 10U
 
 static bool s_initialized = false;
+/* 记录连续同步失败次数，供诊断统计使用。 */
+static uint32_t s_sync_failure_count __attribute__((unused)) = 0U;
 
 static uint8_t s_rx_buf[LD2410C_FRAME_MAX_LEN];
 
@@ -133,7 +137,11 @@ static esp_err_t uart_read_frame(uint8_t *buf, size_t len)
 
     static const uint8_t header[FRAME_HDR_LEN] = {0xF4U, 0xF3U, 0xF2U, 0xF1U};
     TickType_t deadline = xTaskGetTickCount() + pdMS_TO_TICKS(READ_TIMEOUT_MS);
+    /* matched 表示已连续匹配的帧头字节数，达到 4 才找到真正的帧边界。 */
     size_t matched = 0;
+    size_t bytes_seen __attribute__((unused)) = 0;
+    size_t sample_len __attribute__((unused)) = 0;
+    uint8_t raw_sample[16] __attribute__((unused)) = {0};
 
     while (matched < FRAME_HDR_LEN) {
         TickType_t now = xTaskGetTickCount();
