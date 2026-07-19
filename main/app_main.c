@@ -77,7 +77,7 @@ static esp_err_t board_led_off(void)
      * static 关键字让数组存放在静态存储区，不占用栈空间。 */
     static rmt_symbol_word_t symbols[25];
     for (size_t i = 0; i < 24U; i++) {
-        /* 每个逻辑 0：先高电平 T0H 个周期，再低电平 T0L 个周期 */
+        /* 每个逻辑 0：先高电平 T0H 个周期，再低电平 T0L 个周期 ，对应WS2812协议里的逻辑0波形*/
         symbols[i].level0    = 1;    /* 高电平 */
         symbols[i].duration0 = T0H;  /* 持续 400ns */
         symbols[i].level1    = 0;    /* 低电平 */

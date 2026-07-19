@@ -50,6 +50,7 @@
   - **LVGL 专属配置**：必须在 `lv_conf.h` 中设置 `LV_MEM_CUSTOM 0` 并合理设定 `LV_MEM_SIZE` (如 32K/64K) 使用内部静态内存池；Display Draw Buffer 必须使用 `static` 数组全局分配。
 - **SPI 驱动配置**：针对杜邦线物理限制，初始化 SPI 总线时必须配置 `SPI_DEVICE_HALFDUPLEX`，并适当降低 GPIO 驱动能力（`gpio_set_drive_capability`）以减少信号反射。
 - 每个函数必须有 Doxygen 注释 + 错误码返回值
+- 添加必要的中文注释，帮助开发者理解代码
 
 ## 6. 开发阶段指引
 - Phase1: 硬件验证 → 分别测试 SHT30/LCD/LD2410C 单独工作（重点验证 SPI 在杜邦线下的稳定性）
