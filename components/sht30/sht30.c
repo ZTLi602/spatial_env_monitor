@@ -1,6 +1,6 @@
 /**
  * @file sht30.c
- * @brief SHT30 temperature/humidity sensor driver using ESP-IDF I2C master.
+ * @brief SHT30 温湿度传感器驱动：I2C 单次高精度测量与 CRC-8 校验。
  *
  * The driver performs single-shot high-repeatability measurements and validates
  * both temperature and humidity words with the SHT30 CRC-8. The I2C bus is kept
@@ -18,17 +18,18 @@
 
 static const char *TAG = "sht30";
 
-/* SHT30 commands (MSB first) */
+/* SHT30 命令按高字节在前发送：
+ * 0x2400 触发一次高精度测量；0x30A2 让传感器软复位。 */
 #define SHT30_CMD_SINGLE_SHOT_HIGH  0x2400U  /* single-shot, high repeatability, no clock stretch */
 #define SHT30_CMD_SOFT_RESET        0x30A2U
 
-/* Conversion timing */
+/* 高精度转换最长约 15.5ms，等待 20ms 留出余量。 */
 #define SHT30_MEASURE_DELAY_MS      20U      /* datasheet max 15.5 ms, add margin */
 
-/* Response frame: 2 bytes T + 1 CRC + 2 bytes RH + 1 CRC = 6 bytes */
+/* 响应布局：2 字节温度 + CRC + 2 字节湿度 + CRC，共 6 字节。 */
 #define SHT30_RESP_LEN              6U
 
-/* CRC-8 polynomial: x^8 + x^5 + x^4 + 1 (0x31), init 0xFF */
+/* CRC-8 多项式为 0x31，累加器初值为 0xFF。 */
 #define SHT30_CRC_POLY              0x31U
 #define SHT30_CRC_INIT              0xFFU
 
@@ -81,11 +82,13 @@ static uint8_t sht30_crc8(uint8_t msb, uint8_t lsb)
  */
 static esp_err_t sht30_write_cmd(uint16_t cmd)
 {
+    /* 16 位命令在总线上按大端序发送：先取高 8 位，再取低 8 位。 */
     uint8_t buf[2] = {
         (uint8_t)(cmd >> 8U),
         (uint8_t)(cmd & 0xFFU),
     };
 
+    /* 先建立 I2C 命令链，此时还没有真正访问总线。 */
     i2c_cmd_handle_t handle = i2c_cmd_link_create();
     ESP_RETURN_ON_FALSE(handle != NULL, ESP_ERR_NO_MEM, TAG, "i2c_cmd_link_create failed");
 
@@ -112,6 +115,7 @@ static esp_err_t sht30_write_cmd(uint16_t cmd)
  */
 static esp_err_t sht30_read_bytes(uint8_t *buf, size_t len)
 {
+    /* 先建立 I2C 命令链，此时还没有真正访问总线。 */
     i2c_cmd_handle_t handle = i2c_cmd_link_create();
     ESP_RETURN_ON_FALSE(handle != NULL, ESP_ERR_NO_MEM, TAG, "i2c_cmd_link_create failed");
 
