@@ -35,36 +35,7 @@ Phase 1 完成了以下工作：
 
 ## 2. 开发中遇到的问题
 
-### 2.1 PowerShell 找不到 idf.py
-
-**现象**：终端提示无法将 idf.py 识别为 cmdlet。
-
-**原因**：PowerShell 没有加载 ESP-IDF 环境变量，工具链路径不在 PATH 中。
-
-**解决**：使用以下命令加载环境后执行 idf.py：
-
-    cmd.exe /k "call D:\esp\Espressif\frameworks\esp-idf-v5.2.7\export.bat"
-
-**经验**：构建失败前先确认 ESP-IDF 环境已加载。
-
----
-
-### 2.2 雷达 TX/RX 接反
-
-**现象**：UART 持续超时，无法获得有效雷达帧。
-
-**原因**：代码宏从 ESP32 端命名，初次容易误解成雷达端引脚：
-
-    #define LD2410C_PIN_TX  17  // ESP32 TX，对端接雷达 RX
-    #define LD2410C_PIN_RX  18  // ESP32 RX，对端接雷达 TX
-
-**正确接线**：雷达 TX 接 ESP32 GPIO18，雷达 RX 接 ESP32 GPIO17。
-
-**经验**：引脚宏注释应同时标明本端和对端方向。
-
----
-
-### 2.3 UART 字节流失步
+### 2.1 UART 字节流失步
 
 **现象**：偶发非法帧，距离或能量字段超出合理范围。
 
@@ -76,7 +47,7 @@ Phase 1 完成了以下工作：
 
 ---
 
-### 2.4 杜邦线环境下 LCD 花屏
+### 2.2 杜邦线环境下 LCD 花屏
 
 **现象**：LCD 初始化成功，但出现乱色或局部异常。
 
@@ -88,27 +59,13 @@ Phase 1 完成了以下工作：
 
 ---
 
-### 2.5 雷达能量 100 被误认为检测到人
+### 2.3 雷达能量 100 被误认为检测到人
 
 **现象**：近距离摆手时运动和静止能量均显示 100，两个距离字段不同。
 
 **原因**：energy=100 是回波强度等级上限，不是识别置信度。运动通道和静止通道相互独立，同一目标可能同时触发两个通道，各自取能量最强的距离门。
 
 **结论**：LD2410C 可以检测运动和微动目标，但不能直接识别人或障碍物，后续需要 TFLM 多模态模型进一步分类。
-
----
-
-### 2.6 Git 推送被本机代理阻断
-
-**现象**：Failed to connect to 127.0.0.1 port 7890。
-
-**原因**：Git 全局配置指向本机代理端口，但代理软件未运行。
-
-**解决**：启动代理后正常推送，或单次绕过：
-
-    git -c http.proxy= -c https.proxy= push origin main
-
-**经验**：先检查 git config --show-origin --get-regexp proxy，不要直接删除全局配置。
 
 ---
 
@@ -162,27 +119,6 @@ Phase 1 完成了以下工作：
 ### 3.8 SHT30 为什么需要 CRC 校验，具体如何实现？
 
 SHT30 返回 6 字节：温度原始数据 2 字节加 1 字节 CRC，湿度原始数据 2 字节加 1 字节 CRC。驱动分别对温度和湿度的两个原始数据字节执行 CRC-8 计算，使用多项式 0x31 和初始值 0xFF，再与传感器返回的 CRC 字节比较。两组都通过后才进行温湿度换算；任意一组失败就丢弃本次样本并记录读取失败。CRC 用于检测传输中的数据损坏，但不具备加密、身份认证或纠错能力。
-
----
-
-## 4. 验收证据
-
-**初始化成功**：
-
-    sht30:   initialized (SDA=GPIO4, SCL=GPIO1, 400000 Hz)
-    ld2410c: initialized (TX=GPIO17, RX=GPIO18, 256000 baud)
-    st7789:  initialized (240x320, SPI 20 MHz, HALFDUPLEX)
-
-**硬件自检通过**：
-
-    Round 1 SHT30 OK:   T=30.82 C, RH=62.82 %
-    Round 1 LD2410C OK: has=1 state=3 move=63 cm energy=100 static=30 cm energy=100
-    ========== HARDWARE SELF TEST PASS ==========
-
-**连续稳定运行**：
-
-    SHT30   ok=152 fail=0 consecutive=0
-    LD2410C ok=152 timeout=0 invalid=0 other=0 consecutive=0
 
 ---
 
