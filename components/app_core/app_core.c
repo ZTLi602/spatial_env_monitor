@@ -227,6 +227,28 @@ static void app_core_acquisition_task(void *arg)
     }
 }
 
+/**
+ * @brief 将一个物理量按给定区间线性归一化到 [0, 1]，并裁剪越界值。
+ *
+ * 公式：norm = (value - min) / (max - min)，随后 clamp 到 [0, 1]。
+ * 用于把温度/湿度/距离/能量统一到 TFLM 需要的取值范围。
+ *
+ * @param value 原始物理量。
+ * @param min   区间下界。
+ * @param max   区间上界（必须大于 min）。
+ * @return 归一化并裁剪后的结果，落在 [0, 1]。
+ */
+static float app_core_normalize(float value, float min, float max)
+{
+    float norm = (value - min) / (max - min); /* 线性映射到 0..1 */
+    if (norm < 0.0f) {                         /* 低于下界裁剪为 0 */
+        norm = 0.0f;
+    } else if (norm > 1.0f) {                  /* 高于上界裁剪为 1 */
+        norm = 1.0f;
+    }
+    return norm;
+}
+
 /* ======================================================================== */
 /* 公共 API 实现                                                              */
 /* ======================================================================== */
@@ -338,5 +360,155 @@ esp_err_t app_core_get_latest_sample(app_core_sample_t *out_sample)
     *out_sample = s_sample_buf[latest_index]; /* 整个结构体值拷贝 */
 
     taskEXIT_CRITICAL(&s_sample_lock);
+    return ESP_OK;
+}
+
+
+/**
+ * @brief 将一条融合样本转换为归一化的六维特征向量。
+ */
+esp_err_t app_core_build_feature(const app_core_sample_t *sample,
+                                 app_core_feature_t *out_feat)
+{
+    ESP_RETURN_ON_FALSE(sample != NULL,   ESP_ERR_INVALID_ARG, TAG, "sample is NULL");
+    ESP_RETURN_ON_FALSE(out_feat != NULL, ESP_ERR_INVALID_ARG, TAG, "out_feat is NULL");
+
+    /* 先整体清零，保证失败分量默认是 0（也满足 TFLM 的确定性输入要求） */
+    memset(out_feat, 0, sizeof(*out_feat));
+    out_feat->sequence     = sample->sequence;
+    out_feat->timestamp_ms = sample->timestamp_ms;
+
+    /* 温湿度分量：仅在 SHT30 成功且数据有效时填充 */
+    out_feat->env_ok = (sample->env_status == ESP_OK) && sample->env.valid;
+    if (out_feat->env_ok) {
+        out_feat->feature[APP_CORE_FEATURE_IDX_TEMPERATURE] =
+            app_core_normalize(sample->env.temperature_c,
+                               APP_CORE_TEMP_MIN_C, APP_CORE_TEMP_MAX_C);
+        out_feat->feature[APP_CORE_FEATURE_IDX_HUMIDITY] =
+            app_core_normalize(sample->env.humidity_percent,
+                               APP_CORE_HUMIDITY_MIN, APP_CORE_HUMIDITY_MAX);
+    }
+
+    /* 雷达分量：仅在 LD2410C 成功读取时填充（无目标时距离/能量为 0 也合理） */
+    out_feat->radar_ok = (sample->radar_status == ESP_OK);
+    if (out_feat->radar_ok) {
+        out_feat->feature[APP_CORE_FEATURE_IDX_MOVE_DIST] =
+            app_core_normalize((float)sample->radar.moving_distance_cm,
+                               APP_CORE_DISTANCE_MIN_CM, APP_CORE_DISTANCE_MAX_CM);
+        out_feat->feature[APP_CORE_FEATURE_IDX_STATIC_DIST] =
+            app_core_normalize((float)sample->radar.static_distance_cm,
+                               APP_CORE_DISTANCE_MIN_CM, APP_CORE_DISTANCE_MAX_CM);
+        out_feat->feature[APP_CORE_FEATURE_IDX_MOVE_ENERGY] =
+            app_core_normalize((float)sample->radar.moving_energy,
+                               APP_CORE_ENERGY_MIN, APP_CORE_ENERGY_MAX);
+        out_feat->feature[APP_CORE_FEATURE_IDX_STATIC_ENERGY] =
+            app_core_normalize((float)sample->radar.static_energy,
+                               APP_CORE_ENERGY_MIN, APP_CORE_ENERGY_MAX);
+    }
+
+    return ESP_OK;
+}
+
+/**
+ * @brief 读取最新融合样本并直接输出归一化特征向量。
+ */
+esp_err_t app_core_get_latest_feature(app_core_feature_t *out_feat)
+{
+    ESP_RETURN_ON_FALSE(out_feat != NULL, ESP_ERR_INVALID_ARG, TAG, "out_feat is NULL");
+
+    app_core_sample_t sample;
+    esp_err_t ret = app_core_get_latest_sample(&sample); /* 复用已有的临界区读取 */
+    if (ret != ESP_OK) {
+        return ret; /* 透传 ESP_ERR_NOT_FOUND 等状态 */
+    }
+
+    return app_core_build_feature(&sample, out_feat);
+}
+
+/**
+ * @brief 对最近 count 条样本的归一化特征做时域滑动平均。
+ */
+esp_err_t app_core_get_averaged_feature(uint32_t count, app_core_feature_t *out_feat)
+{
+    ESP_RETURN_ON_FALSE(out_feat != NULL, ESP_ERR_INVALID_ARG, TAG, "out_feat is NULL");
+    ESP_RETURN_ON_FALSE(count >= 1U && count <= APP_CORE_SAMPLE_BUFFER_LEN,
+                        ESP_ERR_INVALID_ARG, TAG, "count out of range");
+
+    /* 临界区内把最近 count 条样本一次性拷贝到本地静态数组，
+     * 尽量缩短持锁时间；后续归一化和求平均都在临界区外完成。 */
+    static app_core_sample_t snapshot[APP_CORE_SAMPLE_BUFFER_LEN];
+    uint32_t copied = 0U;
+
+    taskENTER_CRITICAL(&s_sample_lock);
+    if (!s_has_sample) {
+        taskEXIT_CRITICAL(&s_sample_lock);
+        return ESP_ERR_NOT_FOUND; /* 采集任务还没写过任何数据 */
+    }
+    /* 从最新一条往回取 count 条；写指针指向下一个待写槽，故先减 1。
+     * 用 +LEN 再取模避免下标为负。 */
+    for (uint32_t i = 0U; i < count; i++) {
+        uint32_t idx = (s_write_index + APP_CORE_SAMPLE_BUFFER_LEN - 1U - i) %
+                       APP_CORE_SAMPLE_BUFFER_LEN;
+        if (!s_sample_buf[idx].valid) {
+            /* 尚未被写满的槽位（启动初期），停止回溯 */
+            break;
+        }
+        snapshot[copied] = s_sample_buf[idx];
+        copied++;
+    }
+    taskEXIT_CRITICAL(&s_sample_lock);
+
+    if (copied == 0U) {
+        return ESP_ERR_NOT_FOUND;
+    }
+
+    /* 逐条构造特征并按维度累加；分别统计温湿度和雷达的有效样本数，
+     * 只有对应路成功的样本才计入该维度的平均。 */
+    float    sum[APP_CORE_FEATURE_DIM] = {0};
+    uint32_t env_valid_count   = 0U;
+    uint32_t radar_valid_count = 0U;
+
+    for (uint32_t i = 0U; i < copied; i++) {
+        app_core_feature_t f;
+        (void)app_core_build_feature(&snapshot[i], &f); /* 纯计算，必成功 */
+
+        if (f.env_ok) {
+            sum[APP_CORE_FEATURE_IDX_TEMPERATURE] += f.feature[APP_CORE_FEATURE_IDX_TEMPERATURE];
+            sum[APP_CORE_FEATURE_IDX_HUMIDITY]    += f.feature[APP_CORE_FEATURE_IDX_HUMIDITY];
+            env_valid_count++;
+        }
+        if (f.radar_ok) {
+            sum[APP_CORE_FEATURE_IDX_MOVE_DIST]     += f.feature[APP_CORE_FEATURE_IDX_MOVE_DIST];
+            sum[APP_CORE_FEATURE_IDX_STATIC_DIST]   += f.feature[APP_CORE_FEATURE_IDX_STATIC_DIST];
+            sum[APP_CORE_FEATURE_IDX_MOVE_ENERGY]   += f.feature[APP_CORE_FEATURE_IDX_MOVE_ENERGY];
+            sum[APP_CORE_FEATURE_IDX_STATIC_ENERGY] += f.feature[APP_CORE_FEATURE_IDX_STATIC_ENERGY];
+            radar_valid_count++;
+        }
+    }
+
+    memset(out_feat, 0, sizeof(*out_feat));
+    out_feat->sequence     = snapshot[0].sequence;     /* 最新一条的序号 */
+    out_feat->timestamp_ms = snapshot[0].timestamp_ms; /* 最新一条的时间戳 */
+
+    out_feat->env_ok = (env_valid_count > 0U);
+    if (out_feat->env_ok) {
+        out_feat->feature[APP_CORE_FEATURE_IDX_TEMPERATURE] =
+            sum[APP_CORE_FEATURE_IDX_TEMPERATURE] / (float)env_valid_count;
+        out_feat->feature[APP_CORE_FEATURE_IDX_HUMIDITY] =
+            sum[APP_CORE_FEATURE_IDX_HUMIDITY] / (float)env_valid_count;
+    }
+
+    out_feat->radar_ok = (radar_valid_count > 0U);
+    if (out_feat->radar_ok) {
+        out_feat->feature[APP_CORE_FEATURE_IDX_MOVE_DIST] =
+            sum[APP_CORE_FEATURE_IDX_MOVE_DIST] / (float)radar_valid_count;
+        out_feat->feature[APP_CORE_FEATURE_IDX_STATIC_DIST] =
+            sum[APP_CORE_FEATURE_IDX_STATIC_DIST] / (float)radar_valid_count;
+        out_feat->feature[APP_CORE_FEATURE_IDX_MOVE_ENERGY] =
+            sum[APP_CORE_FEATURE_IDX_MOVE_ENERGY] / (float)radar_valid_count;
+        out_feat->feature[APP_CORE_FEATURE_IDX_STATIC_ENERGY] =
+            sum[APP_CORE_FEATURE_IDX_STATIC_ENERGY] / (float)radar_valid_count;
+    }
+
     return ESP_OK;
 }

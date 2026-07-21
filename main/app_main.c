@@ -209,6 +209,41 @@ void app_main(void)
                      (unsigned long)stats.radar_consecutive_failures); /* 雷达连续失败次数 */
         }
 
+        /* Phase2：把最新样本转成归一化的六维特征向量并打印，
+         * 用于验证归一化范围和 TFLM 输入格式。特征顺序固定为：
+         * [温度, 湿度, 运动距离, 静止距离, 运动能量, 静止能量]，均在 [0,1]。 */
+        app_core_feature_t feat = {0};
+        if (app_core_get_latest_feature(&feat) == ESP_OK) {
+            ESP_LOGI(TAG,
+                     "#%lu FEATURE [T=%.3f RH=%.3f mDist=%.3f sDist=%.3f mE=%.3f sE=%.3f]"
+                     " env_ok=%d radar_ok=%d",
+                     (unsigned long)feat.sequence,
+                     feat.feature[APP_CORE_FEATURE_IDX_TEMPERATURE],
+                     feat.feature[APP_CORE_FEATURE_IDX_HUMIDITY],
+                     feat.feature[APP_CORE_FEATURE_IDX_MOVE_DIST],
+                     feat.feature[APP_CORE_FEATURE_IDX_STATIC_DIST],
+                     feat.feature[APP_CORE_FEATURE_IDX_MOVE_ENERGY],
+                     feat.feature[APP_CORE_FEATURE_IDX_STATIC_ENERGY],
+                     (int)feat.env_ok, (int)feat.radar_ok);
+        }
+
+        /* Phase2：再打印最近 8 条样本的滑动平均特征，用于对比单帧特征的
+         * 抖动情况。滑动平均能抑制传感器噪声，是送入 TFLM 前的常见预处理。 */
+        app_core_feature_t avg = {0};
+        if (app_core_get_averaged_feature(8U, &avg) == ESP_OK) {
+            ESP_LOGI(TAG,
+                     "#%lu AVG8    [T=%.3f RH=%.3f mDist=%.3f sDist=%.3f mE=%.3f sE=%.3f]"
+                     " env_ok=%d radar_ok=%d",
+                     (unsigned long)avg.sequence,
+                     avg.feature[APP_CORE_FEATURE_IDX_TEMPERATURE],
+                     avg.feature[APP_CORE_FEATURE_IDX_HUMIDITY],
+                     avg.feature[APP_CORE_FEATURE_IDX_MOVE_DIST],
+                     avg.feature[APP_CORE_FEATURE_IDX_STATIC_DIST],
+                     avg.feature[APP_CORE_FEATURE_IDX_MOVE_ENERGY],
+                     avg.feature[APP_CORE_FEATURE_IDX_STATIC_ENERGY],
+                     (int)avg.env_ok, (int)avg.radar_ok);
+        }
+
         /* 延迟 1000ms，让出 CPU，期间采集任务继续跑 */
         vTaskDelay(pdMS_TO_TICKS(1000)); /* pdMS_TO_TICKS 把毫秒换算为 FreeRTOS tick 数 */
     }
